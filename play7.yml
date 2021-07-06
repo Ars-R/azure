@@ -1,0 +1,56 @@
+---
+- name: install_server
+  hosts: apache2
+  become: true
+
+  
+  tasks:
+  - name: install Apache2
+    apt: name=apache2 update_cache=yes state=latest
+
+- name: web1
+  hosts: web1
+  become: true
+  
+  tasks:
+  - name: Create
+    file:
+        path: "/var/www/html/"
+        state: directory
+        mode: '0755' 
+  
+  - name: Copy index page
+    template:
+      src: "web/files/web1/index.html.j2"     
+      dest: "/var/www/html/index.html"
+    notify: restart-apache  
+  
+  handlers:
+    - name: restart-apache
+      service:
+        name: apache2
+        state: restarted
+
+
+- name: web2
+  hosts: web2
+  become: true
+  
+  tasks:
+  - name: Create
+    file:
+        path: "/var/www/html/"
+        state: directory
+        mode: '0755' 
+  
+  - name: Copy index page
+    template:
+      src: "web/files/web2/index.html.j2"     
+      dest: "/var/www/html/index.html"
+    notify: restart-apache  
+  
+  handlers:
+  - name: restart-apache
+    service:
+      name: apache2
+      state: restarted
